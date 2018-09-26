@@ -9,7 +9,7 @@ namespace Homework1
     public class Lazy<T> : ILazy<T>
     {
         private T result;
-        private readonly Func<T> func;
+        private Func<T> func;
         private bool isResultCalculated = false;
 
         public Lazy(Func<T> supplier)
@@ -26,6 +26,7 @@ namespace Homework1
             if (!isResultCalculated)
             {
                 result = func();
+                func = null;
                 isResultCalculated = true;
             }
             return result;

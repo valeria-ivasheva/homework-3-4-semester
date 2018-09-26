@@ -24,11 +24,17 @@ namespace LazyTest
         [TestMethod]
         public void GetCalculateOnlyOnceTest()
         {
-            var x = 4;
-            var lazy = LazyFactory.CreateOneThreadLazy<int>(() => x * x);
+            var count = 0;
+            var lazy = LazyFactory.CreateOneThreadLazy<int>(() =>
+            {
+                count++;
+                return 16;
+            });
             Assert.AreEqual(16, lazy.Get());
+            Assert.AreEqual(1, count);
             lazy.Get();
             Assert.AreEqual(16, lazy.Get());
+            Assert.AreEqual(1, count);
         }
 
         [TestMethod]

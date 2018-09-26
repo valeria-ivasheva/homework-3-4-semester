@@ -12,7 +12,7 @@ namespace Homework1
     /// <typeparam name="T"> Тип функции</typeparam>
     public class MultiThreadLazy<T> : ILazy<T>
     {
-        private readonly Func<T> func;
+        private Func<T> func;
         private T result;
         private volatile bool isResultCalculated = false;
         private static object locker = new Object();
@@ -28,12 +28,16 @@ namespace Homework1
         /// <returns> Первый вызов возвращает результат, последующие первый </returns>
         public T Get()
         {
-            lock (locker)
+            if (!isResultCalculated)
             {
-                if (!isResultCalculated)
+                lock (locker)
                 {
-                    result = func();
-                    isResultCalculated = true;
+                    if (!isResultCalculated)
+                    {
+                        result = func();
+                        func = null;
+                        isResultCalculated = true;
+                    }
                 }
             }
             return result;
