@@ -2,7 +2,7 @@ image: Visual Studio 2017
 
 branches:
  only:
-  - hm7 
+  - Homework1
 
 before_build:
   - nuget restore Homework1/Homework1.sln
