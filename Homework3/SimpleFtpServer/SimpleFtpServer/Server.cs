@@ -89,9 +89,9 @@ namespace SimpleFtpServer
                 Console.WriteLine(e.Message);
                 writer.BaseStream.Dispose();
             }
-            catch (ArgumentNullException e)
+            catch (ArgumentNullException)
             {
-                Console.WriteLine(e.Message);
+                await writer.WriteAsync("-1");
                 writer.BaseStream.Dispose();
             }
             catch (IOException e)
@@ -103,7 +103,16 @@ namespace SimpleFtpServer
 
         private async void ExecuteList(StreamWriter writer, string path)
         {
-            DirectoryInfo directoryInfo = new DirectoryInfo(path);
+            DirectoryInfo directoryInfo;
+            try
+            {
+                directoryInfo = new DirectoryInfo(path);
+            }
+            catch (ArgumentException)
+            {
+                await writer.WriteAsync("-1");
+                return;
+            }
             if (!directoryInfo.Exists)
             { 
                 await writer.WriteAsync("-1");
