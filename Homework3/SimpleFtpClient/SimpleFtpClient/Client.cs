@@ -10,43 +10,61 @@ namespace SimpleFtpClient
     class Client
     {
         private TcpClient client;
+        private readonly string server;
         private readonly int port;
 
         public Client(string server, int port)
         {
-            client = new TcpClient(server, port);
-            if (client.Connected)
-            {
-                {
-                    Console.WriteLine("Connected");
-                }
-            }
             this.port = port;
+            this.server = server;
         }
 
-        public bool Get(string path)
+        private bool Connect()
         {
             try
             {
+                client = new TcpClient(server, port);
+                if (client.Connected)
+                {
+                    {
+                        Console.WriteLine("Connected");
+                    }
+                }
+                return true;
+            }
+            catch (SocketException)
+            {
+                Console.WriteLine("Couldn't connect");
+                return false;
+            }
+        }
+
+        public bool Get(string path, string savePath)
+        {
+            if (!Connect())
+            {
+                return false;
+            }
+            try
+            {
                 NetworkStream stream = client.GetStream();
+                var writer = new StreamWriter(stream) { AutoFlush = true }; 
+                writer.WriteLine("2");
+                writer.WriteLine(path);
                 var reader = new StreamReader(stream);
-                var writer = new StreamWriter(stream);
-                writer.WriteLineAsync("2");
-                writer.WriteLineAsync(path);
-                var size = Convert.ToInt32(reader.ReadLineAsync());
+                var strSize = reader.ReadLine();
+                var size = long.Parse(strSize);
                 if (size == -1)
                 {
                     Console.WriteLine("File doesn't exists");
                     return false;
                 }
-                var savePath = Console.ReadLine();
+                Console.WriteLine(size);
                 var fileResult = new FileStream(savePath, FileMode.Create);
-                var buffer = new byte[size];
-                int bytesRead;
-                while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) > 0)
-                {
-                    fileResult.Write(buffer, 0, bytesRead);
-                }
+                reader.BaseStream.CopyTo(fileResult);
+                Console.WriteLine("Get it");
+                fileResult.Flush();
+                fileResult.Close();
                 return true;
             }
             catch (ArgumentNullException e)
@@ -68,21 +86,28 @@ namespace SimpleFtpClient
 
         public List<MyFile> List(string path)
         {
+            if (!Connect())
+            {
+                return null;
+            }
             try
             {
                 NetworkStream stream = client.GetStream();
-                var reader = new StreamReader(stream);
-                var writer = new StreamWriter(stream);
+                var writer = new StreamWriter(stream) { AutoFlush = true };
                 var result = new List<MyFile>();
-                writer.WriteLineAsync("1");
-                writer.WriteLineAsync(path);
-                var count = reader.Read();
+                writer.WriteLine("1");
+                Console.WriteLine("Отправили запрос List");
+                writer.WriteLine(path);
+                var reader = new StreamReader(stream);
+                var strCount = reader.ReadLine();
+                var count = int.Parse(strCount);
                 Console.WriteLine($"Size of directory {count}");
                 for (int i = 0; i < count; i++)
                 {
                     var str = reader.ReadLine();
-                    result[i] = new MyFile(str);
+                    result.Add(new MyFile(str));
                 }
+                reader.Close();
                 return result;
             }
             catch (ArgumentNullException e)

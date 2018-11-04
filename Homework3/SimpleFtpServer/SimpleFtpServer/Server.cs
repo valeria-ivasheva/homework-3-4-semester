@@ -10,11 +10,11 @@ using System.Threading.Tasks;
 
 namespace SimpleFtpServer
 {
-    class Server
+    public class Server
     {
         private TcpListener listener;
-        private Socket socket;
         private readonly int port;
+        private CancellationTokenSource cts = new CancellationTokenSource();
 
         public Server(int port)
         {
@@ -22,45 +22,46 @@ namespace SimpleFtpServer
             this.port = port;
         }
 
-        public void Start()
+        public async void Start()
         {
             listener.Start();
             Console.WriteLine($"Listening on port {port}...");
-            while (true)
+            while (!cts.IsCancellationRequested)
             {
-                ThreadPool.QueueUserWorkItem(ProcessingRequest, listener.AcceptTcpClient());
+                ThreadPool.QueueUserWorkItem(ProcessingRequest, await listener.AcceptTcpClientAsync());
             }
         }
 
         private async void ProcessingRequest(object client)
         {
-            var tcpClient = client as TcpClient;
-            NetworkStream stream = tcpClient.GetStream();
-            var reader = new StreamReader(stream);
-            var writer = new StreamWriter(stream);
-            var data = await reader.ReadLineAsync();
-            string path;
-            switch (data)
+            try
             {
-                case "2":
-                    path = await reader.ReadLineAsync();
-                    reader.Close();
-                    ExecuteGet(writer, path);
-                    break;
-                case "1":
-                    path = await reader.ReadLineAsync();
-                    reader.Close();
-                    ExecuteList(writer, path);
-                    break;
-                default:
-                    {
-                        string message = "Неправильная команда";
-                        reader.Close();
-                        writer.AutoFlush = true;
-                        await writer.WriteAsync(message);
-                        writer.Close();
-                        return;
-                    }
+                var tcpClient = client as TcpClient;
+                NetworkStream stream = tcpClient.GetStream();
+                var reader = new StreamReader(stream);
+                var writer = new StreamWriter(stream) { AutoFlush = true };
+                var data = await reader.ReadLineAsync();
+                string path = await reader.ReadLineAsync();
+                switch (data)
+                {
+                    case "2":
+                        ExecuteGet(writer, path);
+                        break;
+                    case "1":
+                        ExecuteList(writer, path);
+                        break;
+                    default:
+                        {
+                            string message = "Wrong command";
+                            await writer.WriteAsync(message);
+                            break;
+                        }
+                }
+                Disconnect(tcpClient);
+            }
+            catch (IOException e)
+            {            
+                Disconnect(client as TcpClient);
             }
         }
 
@@ -68,37 +69,35 @@ namespace SimpleFtpServer
         {
             try
             {
-                FileInfo fileInfo = new FileInfo(path);
+                var fileInfo = new FileInfo(path);
+                Console.WriteLine(fileInfo.Exists);
                 if (!fileInfo.Exists)
                 {
-                    writer.AutoFlush = true;
                     await writer.WriteAsync("-1");
                     return;
                 }
-                using (FileStream file = new FileStream(path, FileMode.Open, FileAccess.Read))
+                using (FileStream file = File.OpenRead(path))
                 {
                     string size = fileInfo.Length.ToString();
-                    writer.AutoFlush = true;
                     await writer.WriteLineAsync(size);
-                    var content = new byte[fileInfo.Length];
-                    int temp = file.Read(content, 0, (int)fileInfo.Length);
-                    socket = listener.AcceptSocket();
-                    socket.Send(content, 0, (int)fileInfo.Length, SocketFlags.None);
-                    file.Close();
+                    await file.CopyToAsync(writer.BaseStream);
+                    Console.WriteLine("Send it");
                 }
-                writer.Close();
             }
             catch (SocketException e)
             {
-                
+                Console.WriteLine(e.Message);
+                writer.BaseStream.Dispose();
             }
             catch (ArgumentNullException e)
             {
-
+                Console.WriteLine(e.Message);
+                writer.BaseStream.Dispose();
             }
             catch (IOException e)
             {
-
+                Console.WriteLine(e.Message);
+                writer.BaseStream.Dispose();
             }
         }
 
@@ -106,31 +105,32 @@ namespace SimpleFtpServer
         {
             DirectoryInfo directoryInfo = new DirectoryInfo(path);
             if (!directoryInfo.Exists)
-            {
-                writer.AutoFlush = true;
+            { 
                 await writer.WriteAsync("-1");
                 return;
             }
             FileInfo[] files = directoryInfo.GetFiles();
             DirectoryInfo[] directories = directoryInfo.GetDirectories();
             var size = (files.Length + directories.Length).ToString();
-            await writer.WriteLineAsync(size);
+            writer.WriteLine(size);
             for (int i = 0; i < directories.Length; i++)
             {
-                await writer.WriteLineAsync($"{directories[i].Name} true");
+                writer.WriteLine($"{directories[i].Name} true");
             }
             for (int i = 0; i < files.Length; i++)
             {
-                await writer.WriteLineAsync($"{files[i].Name} false");
+                writer.WriteLine($"{files[i].Name} false");
             }
+        }
+
+        private void Disconnect(TcpClient client)
+        {
+            client.Close();
         }
 
         public void Stop()
         {
-            if (listener != null)
-            {
-                listener.Stop();
-            }
+            cts.Cancel();
         }
     }
 }
