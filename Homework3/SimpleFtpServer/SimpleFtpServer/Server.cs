@@ -1,15 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace SimpleFtpServer
 {
+    /// <summary>
+    /// Сервер, обрабатывающий два запроса List и Get
+    /// </summary>
     public class Server
     {
         private TcpListener listener;
@@ -22,7 +22,10 @@ namespace SimpleFtpServer
             this.port = port;
         }
 
-        public async void Start()
+        /// <summary>
+        /// Запускает сервер
+        /// </summary>
+        public async Task Start()
         {
             listener.Start();
             Console.WriteLine($"Listening on port {port}...");
@@ -45,10 +48,10 @@ namespace SimpleFtpServer
                 switch (data)
                 {
                     case "2":
-                        ExecuteGet(writer, path);
+                        await ExecuteGet(writer, path);
                         break;
                     case "1":
-                        ExecuteList(writer, path);
+                        await ExecuteList(writer, path);
                         break;
                     default:
                         {
@@ -65,7 +68,7 @@ namespace SimpleFtpServer
             }
         }
 
-        private async void ExecuteGet(StreamWriter writer, string path)
+        private async Task ExecuteGet(StreamWriter writer, string path)
         {
             try
             {
@@ -101,7 +104,7 @@ namespace SimpleFtpServer
             }
         }
 
-        private async void ExecuteList(StreamWriter writer, string path)
+        private async Task ExecuteList(StreamWriter writer, string path)
         {
             DirectoryInfo directoryInfo;
             try
@@ -137,6 +140,9 @@ namespace SimpleFtpServer
             client.Close();
         }
 
+        /// <summary>
+        /// Останавливает сервер
+        /// </summary>
         public void Stop()
         {
             cts.Cancel();

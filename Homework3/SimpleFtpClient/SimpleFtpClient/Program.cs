@@ -16,14 +16,14 @@ namespace SimpleFtpClient
             var client = new Client("localhost", 22234);
             var server = new Server(22234);
             server.Start();
-            var pathToList = Console.ReadLine();
+            var pathToList = @"D:\Zona Downloads"; ///Console.ReadLine();
             var resultList = clientOne.List(pathToList);
             foreach (var temp in resultList)
             {
                 Console.WriteLine($"{temp.Name} and {temp.IsDir}");
             }
-            var savePath = Console.ReadLine();
-            var pathToGet = Console.ReadLine();
+            var savePath = @"D:\Zona Downloads\test.txt";///Console.ReadLine();
+            var pathToGet = @"D:\text.txt";///Console.ReadLine();
             var result = client.Get(pathToGet, savePath);
             Console.WriteLine(result);
             server.Stop();

@@ -7,6 +7,9 @@ using System.IO;
 
 namespace SimpleFtpClient
 {
+    /// <summary>
+    /// Клиент, позволяющий исполнять запросы List и Get
+    /// </summary>
     class Client
     {
         private TcpClient client;
@@ -26,9 +29,7 @@ namespace SimpleFtpClient
                 client = new TcpClient(server, port);
                 if (client.Connected)
                 {
-                    {
-                        Console.WriteLine("Connected");
-                    }
+                    Console.WriteLine("Connected");
                 }
                 return true;
             }
@@ -39,6 +40,12 @@ namespace SimpleFtpClient
             }
         }
 
+        /// <summary>
+        /// Получить файл
+        /// </summary>
+        /// <param name="path">  Путь к файлу</param>
+        /// <param name="savePath"> Путь для сохранения</param>
+        /// <returns> True - все удачно сохранилось, False - что-то пошло не так</returns>
         public bool Get(string path, string savePath)
         {
             if (!Connect())
@@ -84,6 +91,11 @@ namespace SimpleFtpClient
             }
         }
 
+        /// <summary>
+        /// Листинг файлов и деркторий, находящихся в path
+        /// </summary>
+        /// <param name="path"> Путь к директории, информацию о которой мы хотим найти</param>
+        /// <returns> Количество файлов и папок, список из названий. Если такой папки нет, возвращает -1</returns>
         public List<MyFile> List(string path)
         {
             if (!Connect())
