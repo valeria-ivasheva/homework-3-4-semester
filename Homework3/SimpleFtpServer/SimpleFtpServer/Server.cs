@@ -63,7 +63,7 @@ namespace SimpleFtpServer
                 Disconnect(tcpClient);
             }
             catch (IOException e)
-            {            
+            {
                 Disconnect(client as TcpClient);
             }
         }
@@ -117,7 +117,7 @@ namespace SimpleFtpServer
                 return;
             }
             if (!directoryInfo.Exists)
-            { 
+            {
                 await writer.WriteAsync("-1");
                 return;
             }

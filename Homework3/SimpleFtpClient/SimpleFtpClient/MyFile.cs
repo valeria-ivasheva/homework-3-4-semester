@@ -1,14 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SimpleFtpClient
 {
-    class MyFile
+    /// <summary>
+    /// Информация о файле
+    /// </summary>
+    public class MyFile
     {
+        /// <summary>
+        /// Имя файла
+        /// </summary>
         public string Name { get; private set; }
+
+        /// <summary>
+        /// Это директория
+        /// </summary>
         public bool IsDir { get; private set; }
 
         public MyFile(string name, bool isDir)

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Net.Sockets;
-using System.Net;
 using System.IO;
 
 namespace SimpleFtpClient
@@ -10,7 +8,7 @@ namespace SimpleFtpClient
     /// <summary>
     /// Клиент, позволяющий исполнять запросы List и Get
     /// </summary>
-    class Client
+    public class Client
     {
         private TcpClient client;
         private readonly string server;
@@ -22,7 +20,13 @@ namespace SimpleFtpClient
             this.server = server;
         }
 
-        private bool Connect()
+        public void Close() => client.Close();
+
+        /// <summary>
+        /// Проверка подключился ли клиент к серверу
+        /// </summary>
+        /// <returns> True - все ок, false - что-то пошла не так</returns>
+        public bool Connect()
         {
             try
             {
@@ -31,7 +35,7 @@ namespace SimpleFtpClient
                 {
                     Console.WriteLine("Connected");
                 }
-                return true;
+                return client.Connected;
             }
             catch (SocketException)
             {
@@ -55,7 +59,7 @@ namespace SimpleFtpClient
             try
             {
                 NetworkStream stream = client.GetStream();
-                var writer = new StreamWriter(stream) { AutoFlush = true }; 
+                var writer = new StreamWriter(stream) { AutoFlush = true };
                 writer.WriteLine("2");
                 writer.WriteLine(path);
                 var reader = new StreamReader(stream);
