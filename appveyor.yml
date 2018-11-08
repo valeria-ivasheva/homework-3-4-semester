@@ -2,11 +2,11 @@ image: Visual Studio 2017
 
 branches:
  only:
-  - Homework3
+  - Homework2
 
 before_build:
-  - nuget restore Homework3/SimpleFtpClient/SimpleFtpClient.sln
+  - nuget restore MyThreadPool/MyThreadPool.sln
 
 build:
-  project: Homework3/SimpleFtpClient/SimpleFtpClient.sln
+  project: MyThreadPool/MyThreadPool.sln
 
