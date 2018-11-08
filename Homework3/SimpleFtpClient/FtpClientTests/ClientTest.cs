@@ -9,7 +9,7 @@ namespace FtpClientTests
     [TestClass]
     public class ClientTest
     {
-        public Server server = new Server(22234);
+        private Server server = new Server(22234);
         private Client client = new Client("localhost", 22234);
         private Client clientOne = new Client("localhost", 22234);
         private string path;
@@ -35,7 +35,7 @@ namespace FtpClientTests
         [TestMethod]
         public void ListTest()
         {
-            DirectoryInfo dInfo = new DirectoryInfo(path);
+            var dInfo = new DirectoryInfo(path);
             var directories = dInfo.GetDirectories().OrderBy(d => d.Name).ToList();
             var files = dInfo.GetFiles().OrderBy(f => f.Name).ToList();
             var resultList = clientOne.List(path);
@@ -62,14 +62,16 @@ namespace FtpClientTests
             var lines = new string[3] { "Test", "22222, 322, 23", "Olololo" };
             var pathFile = path + "MyFile.txt";
             var pathSave = path + "MyTest.txt";
-            using (StreamWriter file = new StreamWriter(pathFile))
+            using (var file = new StreamWriter(pathFile))
             {
                 foreach (string line in lines)
+                {
                     file.WriteLine(line);
+                }
             }
             var result = client.Get(pathFile, pathSave);
             Assert.IsTrue(result);
-            using (StreamReader file = new StreamReader(pathSave))
+            using (var file = new StreamReader(pathSave))
             {
                 for (int i = 0; i < 3; i++)
                 {
