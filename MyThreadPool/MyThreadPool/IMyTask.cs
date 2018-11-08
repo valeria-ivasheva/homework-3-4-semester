@@ -24,6 +24,6 @@ namespace MyThreadPool
         /// <typeparam name="TNewResult"> Тип результата новой задачи Y</typeparam>
         /// <param name="func"> Объект, который может быть применен к результату данной задачи X</param>
         /// <returns> Новая задача Y, принятая к исполнению</returns>
-        MyTask<TNewResult> ContinueWith<TNewResult>(Func<T, TNewResult> func);
+        IMyTask<TNewResult> ContinueWith<TNewResult>(Func<T, TNewResult> func);
     }
 }

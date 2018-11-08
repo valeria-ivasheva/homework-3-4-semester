@@ -52,16 +52,28 @@ namespace MyThreadPool
         /// Добавить задачу в пул
         /// </summary>
         /// <typeparam name="T"> Тип результата задачи</typeparam>
-        /// <param name="task"> Задача, для добавления</param>
-        public void AddTask<T>(MyTask<T> task)
+        /// <param name="func"> Задача, для добавления</param>
+        public IMyTask<T> AddTask<T>(Func<T> func)
         {
+            var task = new MyTask<T>(this, func);
             if (cts.IsCancellationRequested)
             {
-                return;
+                return null;
             }
             taskQueue.Enqueue(task.Get);
             threadReset.Set();
+            return task;
         }
+
+        //public void AddTask<T>(Task<T> task)
+        //{
+        //    if (cts.IsCancellationRequested)
+        //    {
+        //        return;
+        //    }
+        //    taskQueue.Enqueue(task.Get);
+        //    threadReset.Set();
+        //}
 
         /// <summary>
         /// Количество потоков в пуле
@@ -92,6 +104,95 @@ namespace MyThreadPool
             {
                 threads[i].Join();
             }
+        }
+    }
+
+    class MyTask<T> : IMyTask<T>
+    {
+        private readonly Func<T> func;
+        private T tResult;
+        private readonly MyThreadPool threadPool;
+        private ManualResetEvent resultReset = new ManualResetEvent(false);
+        private ConcurrentQueue<Action> funcsContinue = new ConcurrentQueue<Action>();
+        private Exception exception = null;
+
+        /// <summary>
+        /// Задача — вычисление некоторого значения, описывается в виде Func<TResult>
+        /// </summary>
+        /// <param name="myThreadPool"> Пул потоков, в котором проходит вычисление</param>
+        /// <param name="func"> Сама задача</param>
+        public MyTask(MyThreadPool myThreadPool, Func<T> func)
+        {
+            this.func = func;
+            threadPool = myThreadPool;
+            IsCompleted = false;
+            /// threadPool.AddTask(this);
+        }
+
+        /// <summary>
+        /// Возвращает true, если задача выполнена
+        /// </summary>
+        public bool IsCompleted { get; private set; }
+
+        /// <summary>
+        /// Результата задачи
+        /// </summary>
+        public T Result
+        {
+            get
+            {
+                resultReset.WaitOne();
+                if (exception == null)
+                {
+                    return tResult;
+                }
+                else
+                {
+                    throw new AggregateException(exception.Message);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Новая задача, работающая на основе результата старой
+        /// </summary>
+        /// <typeparam name="TNewResult"> Тип результата новой задачи Y</typeparam>
+        /// <param name="func"> Объект, который может быть применен к результату данной задачи X</param>
+        /// <returns> Новая задача Y, принятая к исполнению</returns>
+        public IMyTask<TNewResult> ContinueWith<TNewResult>(Func<T, TNewResult> func)
+        {
+            IMyTask<TNewResult> newTask = new MyTask<TNewResult>(threadPool, () => func(Result));
+            if (IsCompleted)
+            {
+                return threadPool.AddTask(() => func(Result));
+            }
+            else
+            {
+                funcsContinue.Enqueue(() => { threadPool.AddTask(() => func(Result)); });
+            }
+            return newTask;
+        }
+
+        /// <summary>
+        /// Запуск подсчета результата
+        /// </summary>
+        public void Get()
+        {
+            try
+            {
+                tResult = func();
+            }
+            catch (Exception e)
+            {
+                exception = e;
+            }
+            IsCompleted = true;
+            foreach (var temp in funcsContinue)
+            {
+                funcsContinue.TryDequeue(out Action task);
+                task();
+            }
+            resultReset.Set();
         }
     }
 }

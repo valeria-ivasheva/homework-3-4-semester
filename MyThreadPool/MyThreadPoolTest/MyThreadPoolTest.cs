@@ -18,7 +18,7 @@ namespace MyThreadPoolTest
         [TestMethod]
         public void ContinueTest()
         {
-            var task = new MyTask<int>(myThreadPool, () => 22);
+            var task = myThreadPool.AddTask(() => 22);
             var newTask = task.ContinueWith(j => j * 5);
             Assert.AreEqual(task.Result, 22);
             Assert.AreEqual(newTask.Result, 110);
@@ -31,7 +31,7 @@ namespace MyThreadPoolTest
             for (int i = 0; i < 100; i++)
             {
                 int temp = i;
-                tasks[i] = new MyTask<string>(myThreadPool, () => $"It is {temp++}");
+                tasks[i] = myThreadPool.AddTask(() => $"It is {temp++}");
             }
             for (int i = 0; i < 100; i++)
             {
@@ -42,10 +42,10 @@ namespace MyThreadPoolTest
         [TestMethod]
         public void TestOfThread()
         {
-            var task1 = new MyTask<int>(myThreadPool, () => 36);
-            var task2 = new MyTask<string>(myThreadPool, () => "AAAAA");
+            var task1 = myThreadPool.AddTask(() => 36);
+            var task2 = myThreadPool.AddTask(() => "AAAAA");
             var task3 = task1.ContinueWith(j => System.Math.Sqrt(j));
-            var task4 = new MyTask<string>(myThreadPool, () => TempFunc(task2.Result, task3.Result));
+            var task4 = myThreadPool.AddTask(() => TempFunc(task2.Result, task3.Result));
             var strResult = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
             Assert.AreEqual(strResult, task4.Result);
         }
@@ -68,7 +68,7 @@ namespace MyThreadPoolTest
             for (int i = 0; i < 100; i++)
             {
                 int tempI = i;
-                tasks[i] = new MyTask<int>(myThreadPool, () => tempI / (tempI - tempI));
+                tasks[i] = myThreadPool.AddTask(() => tempI / (tempI - tempI));
             }
             var temp = tasks[0].Result;
         }
@@ -80,7 +80,7 @@ namespace MyThreadPoolTest
             for (int i = 0; i < 100; i++)
             {
                 int temp = i;
-                tasks[i] = new MyTask<string>(myThreadPool, () => $"It is {temp++}");
+                tasks[i] = myThreadPool.AddTask(() => $"It is {temp++}");
             }
             Assert.AreEqual(10, myThreadPool.CountOfAliveThreads());
         }
@@ -91,12 +91,11 @@ namespace MyThreadPoolTest
             var tasks = new IMyTask<int>[100];
             for (int i = 0; i < 100; i++)
             {
-                tasks[i] = new MyTask<int>(myThreadPool, () => 100);
+                tasks[i] = myThreadPool.AddTask(() => 100);
             }
             myThreadPool.Shutdown();
-            var tempTask = new MyTask<string>(myThreadPool, () => "Ololo");
-            myThreadPool.AddTask(tempTask);
-            Assert.IsFalse(tempTask.IsCompleted);
+            var tempTask = myThreadPool.AddTask(() => "Ololo");
+            Assert.IsNull(tempTask);
             for (int i = 0; i < 100; i++)
             {
                 Assert.IsTrue(tasks[i].IsCompleted);
