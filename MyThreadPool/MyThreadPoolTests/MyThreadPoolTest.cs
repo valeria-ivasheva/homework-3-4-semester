@@ -2,7 +2,7 @@
 using MyThreadPool;
 using System;
 
-namespace MyThreadPoolTest
+namespace MyThreadPoolTests
 {
     [TestClass]
     public class MyThreadPoolTest
@@ -104,3 +104,4 @@ namespace MyThreadPoolTest
         }
     }
 }
+
