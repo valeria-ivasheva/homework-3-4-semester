@@ -86,6 +86,7 @@ namespace MyThreadPoolTests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ThreadPoolClosedException))]
         public void ShutdowntTest()
         {
             var tasks = new IMyTask<int>[100];

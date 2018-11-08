@@ -12,7 +12,7 @@ namespace MyThreadPool
         private readonly int countOfThread;
         private readonly Thread[] threads;
         private CancellationTokenSource cts = new CancellationTokenSource();
-        private AutoResetEvent threadReset = new AutoResetEvent(true);
+        private AutoResetEvent threadReset = new AutoResetEvent(false);
         private ConcurrentQueue<Action> taskQueue = new ConcurrentQueue<Action>();
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace MyThreadPool
             var task = new MyTask<T>(this, func);
             if (cts.IsCancellationRequested)
             {
-                return null;
+                throw new ThreadPoolClosedException();
             }
             taskQueue.Enqueue(task.Get);
             threadReset.Set();
@@ -103,6 +103,7 @@ namespace MyThreadPool
             private readonly MyThreadPool threadPool;
             private ManualResetEvent resultReset = new ManualResetEvent(false);
             private ConcurrentQueue<Action> funcsContinue = new ConcurrentQueue<Action>();
+            private static object locker = new Object();
             private Exception exception = null;
 
             /// <summary>
@@ -150,13 +151,16 @@ namespace MyThreadPool
             public IMyTask<TNewResult> ContinueWith<TNewResult>(Func<T, TNewResult> func)
             {
                 IMyTask<TNewResult> newTask = new MyTask<TNewResult>(threadPool, () => func(Result));
-                if (IsCompleted)
+                lock (locker)
                 {
-                    return threadPool.AddTask(() => func(Result));
-                }
-                else
-                {
-                    funcsContinue.Enqueue(() => { threadPool.AddTask(() => func(Result)); });
+                    if (IsCompleted)
+                    {
+                        return threadPool.AddTask(() => func(Result));
+                    }
+                    else
+                    {
+                        funcsContinue.Enqueue(() => { threadPool.AddTask(() => func(Result)); });
+                    }
                 }
                 return newTask;
             }
