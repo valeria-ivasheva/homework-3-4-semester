@@ -9,3 +9,4 @@ before_build:
 
 build:
   project: Homework3/SimpleFtpClient/SimpleFtpClient.sln
+
