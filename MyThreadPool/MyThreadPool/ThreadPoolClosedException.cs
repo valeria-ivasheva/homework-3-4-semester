@@ -2,6 +2,9 @@
 
 namespace MyThreadPool
 {
+    /// <summary>
+    /// Исключение, пул потоков закрыт
+    /// </summary>
     public class ThreadPoolClosedException : Exception
     {
         public ThreadPoolClosedException()

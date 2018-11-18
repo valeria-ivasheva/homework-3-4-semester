@@ -13,6 +13,7 @@ namespace MyThreadPool
         private readonly Thread[] threads;
         private CancellationTokenSource cts = new CancellationTokenSource();
         private AutoResetEvent threadReset = new AutoResetEvent(false);
+        private AutoResetEvent closeReset = new AutoResetEvent(false);
         private ConcurrentQueue<Action> taskQueue = new ConcurrentQueue<Action>();
 
         /// <summary>
@@ -41,6 +42,7 @@ namespace MyThreadPool
                                 threadReset.Set();
                             }
                         }
+                       closeReset.Set();
                     }
                 });
                 threads[i].IsBackground = true;
@@ -89,6 +91,7 @@ namespace MyThreadPool
         {
             cts.Cancel();
             threadReset.Set();
+            closeReset.WaitOne();
             taskQueue = null;
             for (int i = 0; i < countOfThread; i++)
             {
@@ -98,12 +101,11 @@ namespace MyThreadPool
 
         private class MyTask<T> : IMyTask<T>
         {
-            private readonly Func<T> func;
+            private Func<T> func;
             private T tResult;
             private readonly MyThreadPool threadPool;
             private ManualResetEvent resultReset = new ManualResetEvent(false);
             private ConcurrentQueue<Action> funcsContinue = new ConcurrentQueue<Action>();
-            private static object locker = new Object();
             private Exception exception = null;
 
             /// <summary>
@@ -151,7 +153,7 @@ namespace MyThreadPool
             public IMyTask<TNewResult> ContinueWith<TNewResult>(Func<T, TNewResult> func)
             {
                 IMyTask<TNewResult> newTask = new MyTask<TNewResult>(threadPool, () => func(Result));
-                lock (locker)
+                lock (funcsContinue)
                 {
                     if (IsCompleted)
                     {
@@ -173,6 +175,7 @@ namespace MyThreadPool
                 try
                 {
                     tResult = func();
+                    func = null;
                 }
                 catch (Exception e)
                 {
