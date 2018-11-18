@@ -14,6 +14,7 @@ namespace MyThreadPool
         private CancellationTokenSource cts = new CancellationTokenSource();
         private AutoResetEvent threadReset = new AutoResetEvent(false);
         private AutoResetEvent closeReset = new AutoResetEvent(false);
+        private object locker = new object();
         private ConcurrentQueue<Action> taskQueue = new ConcurrentQueue<Action>();
 
         /// <summary>
@@ -42,7 +43,7 @@ namespace MyThreadPool
                                 threadReset.Set();
                             }
                         }
-                       closeReset.Set();
+                        closeReset.Set();
                     }
                 });
                 threads[i].IsBackground = true;
@@ -92,10 +93,22 @@ namespace MyThreadPool
             cts.Cancel();
             threadReset.Set();
             closeReset.WaitOne();
-            taskQueue = null;
+            Clear();
             for (int i = 0; i < countOfThread; i++)
             {
                 threads[i].Join();
+            }
+        }
+
+        private void Clear()
+        {
+            lock(locker)
+            {
+                Action temp;
+                while (!taskQueue.IsEmpty)
+                {
+                    taskQueue.TryDequeue(out temp);
+                }
             }
         }
 
