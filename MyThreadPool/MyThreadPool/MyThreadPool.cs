@@ -31,16 +31,19 @@ namespace MyThreadPool
                 {
                     while (!cts.IsCancellationRequested)
                     {
-                        if (taskQueue.TryDequeue(out Action task))
+                        lock (taskQueue)
                         {
-                            task();
-                        }
-                        else
-                        {
-                            threadReset.WaitOne();
-                            if (cts.IsCancellationRequested)
+                            if (taskQueue != null && taskQueue.TryDequeue(out Action task))
                             {
-                                threadReset.Set();
+                                task();
+                            }
+                            else
+                            {
+                                threadReset.WaitOne();
+                                if (cts.IsCancellationRequested)
+                                {
+                                    threadReset.Set();
+                                }
                             }
                         }
                         closeReset.Set();
@@ -93,22 +96,10 @@ namespace MyThreadPool
             cts.Cancel();
             threadReset.Set();
             closeReset.WaitOne();
-            Clear();
+            taskQueue = null;
             for (int i = 0; i < countOfThread; i++)
             {
                 threads[i].Join();
-            }
-        }
-
-        private void Clear()
-        {
-            lock(locker)
-            {
-                Action temp;
-                while (!taskQueue.IsEmpty)
-                {
-                    taskQueue.TryDequeue(out temp);
-                }
             }
         }
 
