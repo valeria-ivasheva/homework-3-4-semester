@@ -12,7 +12,8 @@ namespace SimpleFtpServer
         static void Main(string[] args)
         {
             var server = new Server(22234);
-            server.Start();
+            Task.Run(async () => await server.Start());
+            Console.Read();
             server.Stop();
         }
     }
