@@ -24,8 +24,9 @@ namespace GUIFtpTests
             server.Start();
             viewModel.Server = "localhost";
             viewModel.Port = "22234";
-            pathToDir = @"D:\Zona Downloads";
-            viewModel.PathSave = @"D:\Zona Downloads\New";
+            pathToDir = Directory.GetCurrentDirectory();
+            Directory.CreateDirectory(pathToDir + @"\New");
+            viewModel.PathSave = pathToDir + @"\New"; 
             viewModel.CurrentPath = pathToDir;
             viewModel.ConnectCommand.Execute(this);
         }
@@ -40,8 +41,6 @@ namespace GUIFtpTests
         [TestMethod]
         public async System.Threading.Tasks.Task OpenTest()
         {
-            //var pathTo = @"D:\summerSchool";
-            //viewModel.CurrentPath = pathTo;
             await (viewModel.OpenCommand as CommandAsync).ExecuteAsync(this);
             int countDir = 0;
             int countFiles = 0;
@@ -50,7 +49,7 @@ namespace GUIFtpTests
             var listDirName = directories.Select(d => d.Name);
             var files = dInfo.GetFiles().OrderBy(f => f.Name).ToList();
             var listFileName = files.Select(f => f.Name);
-            Assert.AreEqual(11, viewModel.List.Count());
+            Assert.AreEqual(directories.Count + files.Count, viewModel.List.Count());
             for (int i = 0; i < viewModel.List.Count; i++)
             {
                 var temp = viewModel.List[i].Name;
@@ -75,7 +74,8 @@ namespace GUIFtpTests
         {
             await (viewModel.OpenCommand as CommandAsync).ExecuteAsync(this);
             await viewModel.TryOpenFolder(viewModel.List[0]);
-            Assert.AreEqual(@"D:\Zona Downloads\New", viewModel.CurrentPath);
+            var folder = new DirectoryInfo(pathToDir).GetDirectories().OrderBy(b => b.Name).First();
+            Assert.AreEqual(pathToDir + @"\" + folder.Name, viewModel.CurrentPath);
         }
 
         [TestMethod]

@@ -24,7 +24,7 @@ namespace GIUFtp
         public bool IsDir { get; private set; }
 
         /// <summary>
-        /// 
+        /// Ссылка на изображение загрузки
         /// </summary>
         public string ImagePath
         {

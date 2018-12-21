@@ -25,6 +25,9 @@ namespace GIUFtp
         private string pathSave;
         private string currentPath;
 
+        /// <summary>
+        /// Порт для сервера
+        /// </summary>
         public string Port
         {
             get => Convert.ToString(port);
@@ -44,6 +47,9 @@ namespace GIUFtp
             }
         }
 
+        /// <summary>
+        /// Адрес для попдключения
+        /// </summary>
         public string Server
         {
             get => server;
@@ -55,6 +61,10 @@ namespace GIUFtp
                 }
             }
         }
+
+        /// <summary>
+        /// Путь для сохранения
+        /// </summary>
         public string PathSave
         {
             get
@@ -68,6 +78,9 @@ namespace GIUFtp
             }
         }
 
+        /// <summary>
+        /// Путь к каталогу, отображаемому в данный момент
+        /// </summary>
         public string CurrentPath
         {
             get
@@ -81,8 +94,19 @@ namespace GIUFtp
             }
         }
 
+        /// <summary>
+        /// Список папок, на которые смотрит сервер
+        /// </summary>
         public ObservableCollection<MyFile> List { get; set; }
+
+        /// <summary>
+        /// Список загружаемых/загруженных файлов
+        /// </summary>
         public ObservableCollection<MyFile> ListDownload { get; set; }
+
+        /// <summary>
+        /// Выбранный элемент для загрузки
+        /// </summary>
         public MyFile SelectedListElement { get; set; }
 
         public ViewModel(MainWindow window)
@@ -158,9 +182,9 @@ namespace GIUFtp
         }
 
         /// <summary>
-        /// 
+        /// Проверяет подключено ли к серверу
         /// </summary>
-        /// <returns></returns>
+        /// <returns> True, если подключено</returns>
         public bool IsConnected()
         {
             return connected;

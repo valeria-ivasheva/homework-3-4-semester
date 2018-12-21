@@ -10,13 +10,10 @@ using System.Windows.Input;
 namespace GIUFtp
 {
     /// <summary>
-    /// 
+    /// Класс, реализующий ассинхронную команду
     /// </summary>
     public class CommandAsync : IAsyncCommand
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public event EventHandler CanExecuteChanged
         {
             add { CommandManager.RequerySuggested += value; }
@@ -30,16 +27,16 @@ namespace GIUFtp
         private readonly Func<Task> command;
 
         /// <summary>
-        /// 
+        /// Конструктор класса
         /// </summary>
-        /// <param name="command"></param>
+        /// <param name="command"> Команда, которую нужно выполнить ассинхронно</param>
         public CommandAsync(Func<Task> command)
         {
             this.command = command;
         }
 
         /// <summary>
-        /// 
+        /// Можно либо выполнить команду
         /// </summary>
         /// <param name="parameter"></param>
         /// <returns></returns>
@@ -49,7 +46,7 @@ namespace GIUFtp
         }
 
         /// <summary>
-        /// 
+        /// Выполнить команду
         /// </summary>
         /// <param name="parameter"></param>
         /// <returns></returns>
@@ -59,7 +56,7 @@ namespace GIUFtp
         }
 
         /// <summary>
-        /// 
+        /// Выполнить команду ассинхронно
         /// </summary>
         /// <param name="parameter"></param>
         public async void Execute(object parameter)
