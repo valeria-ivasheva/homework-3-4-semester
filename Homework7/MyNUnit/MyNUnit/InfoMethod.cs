@@ -8,11 +8,11 @@ namespace MyNUnit
 {
     public class InfoMethod
     {
-        public Exception Exception { get; private set; }
+        public Type Exception { get; private set; }
         public string Name { get; private set; }
         public bool Result { get; private set; }
 
-        public InfoMethod(string name, Exception exception)
+        public InfoMethod(string name, Type exception)
         {
             Name = name;
             Exception = exception;

@@ -5,12 +5,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TestProject
+namespace SimpleTest
 {
     public class Class1
     {
         [Test]
-        public void TestMethod()
-        { }
+       public int Simple()
+        {
+            return 132;
+        }
+
+        [Test]
+        private int Sdeee()
+        {
+            return 03;
+        }
     }
 }

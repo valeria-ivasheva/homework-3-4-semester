@@ -31,5 +31,17 @@ namespace MyNUnit
         {
             OK, FAILED, IGNORED
         }
+
+        public void Write()
+        {
+            if (Result == ResultType.OK)
+            {
+                Console.WriteLine($"{Name} {Result} {RunTime}");
+            }
+            else
+            {
+                Console.WriteLine($"{Name} {Result} {Message}");
+            }
+        }
     }
 }

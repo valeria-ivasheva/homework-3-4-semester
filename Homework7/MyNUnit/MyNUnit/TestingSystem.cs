@@ -16,7 +16,7 @@ namespace MyNUnit
 
         public static void Run(string path)
         {
-            var pathToAssebmly = GetFilesList(path, "*.exe,*.dll");
+            var pathToAssebmly = GetFilesList(path, "*.dll");
             var types = new List<Type>();
             foreach(var pathTemp in pathToAssebmly)
             {
@@ -37,8 +37,13 @@ namespace MyNUnit
             var result = testsResult.ToList();
             for (int i = 0; i < testsResult.Count; i++)
             {
-                Console.WriteLine($"{result[i].Name} {result[i].Result} {result[i].Message}");
+                result[i].Write();
             }
+        }
+
+        public static List<TestResultInfo> GetResultTestInfos()
+        {
+            return testsResult.ToList();
         }
 
         private static List<string> GetFilesList(string path, string pattern)
@@ -73,19 +78,20 @@ namespace MyNUnit
 
         private static void RunTest(MethodInfo method)
         {
-            Console.WriteLine(method.Name);
+            var attrTemp = Attribute.GetCustomAttribute(method, typeof(TestAttribute));
             var attr = (TestAttribute)Attribute.GetCustomAttributes(method).Where(t =>Equals(t.GetType(), typeof(TestAttribute))).First(); //Здесь нет элементов из-за приведения типа
-            var ignore = ((TestAttribute)attr).Ignore;
-            var expectedException = ((TestAttribute)attr).Expected;
+            var ignore = attr.Ignore;
+            var expectedException = attr.Expected;
             var methodsBeforeTest = MethodsWithAttributes<BeforeTestAttribute>(method.DeclaringType);
             var passedMethodsBeforeTest = RunMethodsWithAnnotation(methodsBeforeTest, new List<MethodInfo> { method }, "BeforeTest");
             if (!passedMethodsBeforeTest)
             {
                 return;
             }
-            if (ignore != "")
+            if (ignore != null)
             {
                 var resultTest = new TestResultInfo(method.DeclaringType + " " + method.Name, true, ignore);
+                testsResult.Add(resultTest);
                 return;
             }
             Stopwatch watch = new Stopwatch();
@@ -93,11 +99,17 @@ namespace MyNUnit
             var result = RunMethod(method);
             watch.Stop();
             var elapsedTime = watch.ElapsedMilliseconds;
-            var condTrueResultException = expectedException != null && (result.Exception).GetType() == expectedException;            
-            if (!condTrueResultException)
+            var condTrueResultException = expectedException != null && (result.Exception) == expectedException;            
+            if (!condTrueResultException && expectedException != null)
             {
                 var resultTest = new TestResultInfo(method.DeclaringType + " " + method.Name, false, $"Expected exception {expectedException}");
+                testsResult.Add(resultTest);
                 return;
+            }
+            if (result.Exception != null && expectedException == null)
+            {
+                var resultTest = new TestResultInfo(method.DeclaringType + " " + method.Name, false, $"Exception {result.Exception}");
+                testsResult.Add(resultTest);
             }
             var methodsAfterTest = MethodsWithAttributes<AfterTestAttribute>(method.DeclaringType);
             var passedAfterTest = RunMethodsWithAnnotation(methodsAfterTest, new List<MethodInfo> { method }, "AfterTest");
@@ -108,6 +120,7 @@ namespace MyNUnit
             if (condTrueResultException || result.Result)
             {
                 var resultTest = new TestResultInfo(method.DeclaringType + " " + method.Name, elapsedTime);
+                testsResult.Add(resultTest); 
                 return;
             }
         }
@@ -194,7 +207,8 @@ namespace MyNUnit
             }
             catch(Exception e)
             {
-                result = new InfoMethod(methodInfo.Name, e);
+                var typeException = e.InnerException.GetType();
+                result = new InfoMethod(methodInfo.Name, typeException);
             }
             return result;
         }
