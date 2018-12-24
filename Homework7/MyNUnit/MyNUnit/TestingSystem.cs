@@ -10,10 +10,18 @@ using MyNUnit.Attributes;
 
 namespace MyNUnit
 {
+    /// <summary>
+    /// Тестирующая система
+    /// </summary>
     public static class TestingSystem
     {
         private static ConcurrentBag<TestResultInfo> testsResult;
+        private static readonly object lockObject = new object();
 
+        /// <summary>
+        /// Запуск тестов, находящихся во всех сборках, расположенных по пути path
+        /// </summary>
+        /// <param name="path"> Путь для тестов</param>
         public static void Run(string path)
         {
             var pathToAssebmly = GetFilesList(path, "*.dll");
@@ -34,16 +42,39 @@ namespace MyNUnit
 
         private static void WriteResult()
         {
-            var result = testsResult.ToList();
-            for (int i = 0; i < testsResult.Count; i++)
+            var result = GetResultTestInfos();
+            for (int i = 0; i < result.Count; i++)
             {
                 result[i].Write();
             }
         }
 
+        /// <summary>
+        /// Получить результаты тестов
+        /// </summary>
+        /// <returns> Список результатов тестов</returns>
         public static List<TestResultInfo> GetResultTestInfos()
         {
-            return testsResult.ToList();
+            var result = testsResult.ToList();
+            var resultNew = new List<TestResultInfo>();
+            result.Sort();
+            int index = 0;
+            while (index < result.Count)
+            {
+                var name = result[index].Name;
+                var temp = result.Where(x => x.Name == name);
+                if (temp.Count() == 1)
+                {
+                    resultNew.Add(result[index]);
+                }
+                else
+                {
+                    var add = temp.Where(x => x.Result.ToString() == "FAILED").ToList();
+                    resultNew.Add(add[0]);
+                }
+                index += temp.Count();
+            }
+            return resultNew;
         }
 
         private static List<string> GetFilesList(string path, string pattern)
@@ -60,30 +91,31 @@ namespace MyNUnit
             {
                 return;
             }
-            var passedMethodsBeforeClass = RunMethodsWithAnnotation(methodsBeforeClass, methodsForTesting, "BeforeClass");
+            var instanceOfType = Activator.CreateInstance(type);
+            var passedMethodsBeforeClass = RunMethodsWithAnnotation(methodsBeforeClass, methodsForTesting, "BeforeClass", instanceOfType);
             if (!passedMethodsBeforeClass)
             {
                 return;
             }
-            Parallel.ForEach(methodsForTesting, RunTest);
-            var passedMethodsAfterTest = RunMethodsWithAnnotation(methodsAfterClass, methodsForTesting, "AfterClass");
+            Parallel.For(0, methodsForTesting.Count, i => RunTest(methodsForTesting[i], instanceOfType));
+            var passedMethodsAfterTest = RunMethodsWithAnnotation(methodsAfterClass, methodsForTesting, "AfterClass", instanceOfType);
         }
 
-        private static bool RunMethodsWithAnnotation(List<MethodInfo> methodsWithAnnotation, List<MethodInfo> methodsTest, string annotation)
+        private static bool RunMethodsWithAnnotation(List<MethodInfo> methodsWithAnnotation, List<MethodInfo> methodsTest, string annotation, object instanceOfType)
         {
-            var resultMethods = RunMethodsClass(methodsWithAnnotation);
+            var resultMethods = RunMethodsClass(methodsWithAnnotation, instanceOfType);
             var passedMethods = CheckResultsMethod(resultMethods, methodsTest, annotation);
             return passedMethods;
         }
 
-        private static void RunTest(MethodInfo method)
+        private static void RunTest(MethodInfo method, object instanceOfType)
         {
             var attrTemp = Attribute.GetCustomAttribute(method, typeof(TestAttribute));
             var attr = (TestAttribute)Attribute.GetCustomAttributes(method).Where(t =>Equals(t.GetType(), typeof(TestAttribute))).First(); //Здесь нет элементов из-за приведения типа
             var ignore = attr.Ignore;
             var expectedException = attr.Expected;
             var methodsBeforeTest = MethodsWithAttributes<BeforeTestAttribute>(method.DeclaringType);
-            var passedMethodsBeforeTest = RunMethodsWithAnnotation(methodsBeforeTest, new List<MethodInfo> { method }, "BeforeTest");
+            var passedMethodsBeforeTest = RunMethodsWithAnnotation(methodsBeforeTest, new List<MethodInfo> { method }, "BeforeTest", instanceOfType);
             if (!passedMethodsBeforeTest)
             {
                 return;
@@ -96,7 +128,7 @@ namespace MyNUnit
             }
             Stopwatch watch = new Stopwatch();
             watch.Start();
-            var result = RunMethod(method);
+            var result = RunMethod(method, instanceOfType);
             watch.Stop();
             var elapsedTime = watch.ElapsedMilliseconds;
             var condTrueResultException = expectedException != null && (result.Exception) == expectedException;            
@@ -112,7 +144,7 @@ namespace MyNUnit
                 testsResult.Add(resultTest);
             }
             var methodsAfterTest = MethodsWithAttributes<AfterTestAttribute>(method.DeclaringType);
-            var passedAfterTest = RunMethodsWithAnnotation(methodsAfterTest, new List<MethodInfo> { method }, "AfterTest");
+            var passedAfterTest = RunMethodsWithAnnotation(methodsAfterTest, new List<MethodInfo> { method }, "AfterTest", instanceOfType);
             if (!passedAfterTest)
             {
                 return;
@@ -135,17 +167,7 @@ namespace MyNUnit
             string message = $"Не пройдены методы {annotation}";
             for (int i = 0; i < methodsTest.Count; i++)
             {
-                var result = new TestResultInfo(methodsTest[i].DeclaringType + " " + methodsTest[i].Name, false, message);
-                var haveThisTests = IsHaveThisTest(methodsTest[i].DeclaringType + " " + methodsTest[i].Name);
-                if (haveThisTests == null)
-                {
-                    testsResult.Add(result);
-                }
-                else
-                {
-                    testsResult.TryTake(out haveThisTests);
-                    testsResult.Add(result);
-                }
+                testsResult.Add(new TestResultInfo(methodsTest[i].DeclaringType + " " + methodsTest[i].Name, false, message));             
             }
             return false;
         }
@@ -179,14 +201,14 @@ namespace MyNUnit
             return result;
         }
 
-        private static List<InfoMethod> RunMethodsClass(List<MethodInfo> methods)
+        private static List<InfoMethod> RunMethodsClass(List<MethodInfo> methods, object instanceOfType)
         {
             var tasks = new Task<InfoMethod>[methods.Count];
             var result = new List<InfoMethod>();
             for (int i = 0; i < tasks.Length; i++)
             {
                 int j = i;
-                tasks[i] = Task.Factory.StartNew(() => RunMethod(methods[j]));
+                tasks[i] = Task.Factory.StartNew(() => RunMethod(methods[j], instanceOfType));
             }
             Task.WaitAll(tasks);
             foreach(var task in tasks)
@@ -197,13 +219,12 @@ namespace MyNUnit
         }
         
 
-        private static InfoMethod RunMethod(MethodInfo methodInfo)
+        private static InfoMethod RunMethod(MethodInfo methodInfo, object instanceOfType)
         {
             var result = new InfoMethod(methodInfo.Name);
             try
             {
-                var obj = Activator.CreateInstance(methodInfo.DeclaringType);
-                var resultMethod = methodInfo.Invoke(obj, null);
+                var resultMethod = methodInfo.Invoke(instanceOfType, null);
             }
             catch(Exception e)
             {

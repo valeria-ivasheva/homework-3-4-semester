@@ -26,9 +26,7 @@ namespace Tests
             MyNUnit.TestingSystem.Run(path);
             var result = TestingSystem.GetResultTestInfos();
             Assert.AreEqual(1, result.Count);
-            Assert.AreEqual("SimpleTest.Class1 Simple", result[0].Name);
-            Assert.AreEqual("OK", result[0].Result.ToString());
-            Assert.Pass();
+            Assert.IsTrue(TestPassedOk(result[0], "SimpleTest.Class1 Simple"));
         }
 
         [Test]
@@ -38,11 +36,8 @@ namespace Tests
             TestingSystem.Run(path);
             var result = TestingSystem.GetResultTestInfos();
             Assert.AreEqual(2, result.Count);
-            Assert.AreEqual("TestIgnore.Ignore TempTest", result[1].Name);
-            Assert.AreEqual("OK", result[1].Result.ToString());
-            Assert.AreEqual("TestIgnore.Ignore IgnoreTest", result[0].Name);
-            Assert.AreEqual("IGNORED", result[0].Result.ToString());
-            Assert.AreEqual("Просто так)", result[0].Message);
+            Assert.IsTrue(TestPassedOk(result[1], "TestIgnore.Ignore TempTest"));
+            Assert.IsTrue(TestPassedIgnore(result[0], "TestIgnore.Ignore IgnoreTest", "Просто так)"));
         }
 
         [Test]
@@ -52,21 +47,63 @@ namespace Tests
             TestingSystem.Run(path);
             var result = TestingSystem.GetResultTestInfos();
             Assert.AreEqual(1, result.Count);
-            Assert.AreEqual("TestWithException.Class1 Exception", result[0].Name);
-            Assert.AreEqual("OK", result[0].Result.ToString());
+            Assert.IsTrue(TestPassedOk(result[0], "TestWithException.Class1 Exception"));
         }
 
         [Test]
-        public void TestWithBeforeClass()
+        public void TestWithAnnotations()
         {
             path = path + @"\TestWithMethods\bin";
             TestingSystem.Run(path);
             var result = TestingSystem.GetResultTestInfos();
+            result.Sort();
+            Assert.AreEqual(8, result.Count);
+            Assert.IsTrue(TestFailed(result[0], "TestWithMethods.TestAfter Test"));
+            Assert.IsTrue(TestFailed(result[1], "TestWithMethods.TestAfter Test1"));
+            Assert.IsTrue(TestFailed(result[2], "TestWithMethods.TestAfterClass Test"));
+            Assert.IsTrue(TestFailed(result[3], "TestWithMethods.TestAfterClass Test1"));
+            Assert.IsTrue(TestPassedOk(result[4], "TestWithMethods.TestBefore Test"));
+            Assert.IsTrue(TestPassedOk(result[7], "TestWithMethods.TestWithBeforeClass Test1"));
+            Assert.IsTrue(TestPassedOk(result[6], "TestWithMethods.TestWithBeforeClass Test"));
+            Assert.IsTrue(TestPassedOk(result[5], "TestWithMethods.TestBefore Test1"));
+        }
+
+        [Test]
+        public void WrongTests()
+        {
+            path = path + @"\WrongTests\bin";
+            TestingSystem.Run(path);
+            var result = TestingSystem.GetResultTestInfos();
+            result.Sort();
             Assert.AreEqual(2, result.Count);
-            Assert.AreEqual("TestWithMethods.TestWithBeforeClass Test", result[0].Name);
-            Assert.AreEqual("OK", result[0].Result.ToString());
-            Assert.AreEqual("TestWithMethods.TestWithBeforeClass Test1", result[1].Name);
-            Assert.AreEqual("OK", result[1].Result.ToString());
+            Assert.IsTrue(TestFailed(result[0], "WrongTests.TestClass Test", "Не пройдены методы BeforeTest"));
+            Assert.IsTrue(TestFailed(result[1], "WrongTests.WrongTest Test", "Exception System.Exception"));
+        }
+
+        private bool TestFailed(TestResultInfo testResult, string name)
+        {
+            var result = testResult.Name == name && testResult.Result.ToString() == "FAILED";
+            return result;
+        }
+
+        private bool TestFailed(TestResultInfo testResult, string name, string message)
+        {
+            var result = testResult.Name == name && testResult.Result.ToString() == "FAILED";
+            result = result && message == testResult.Message;
+            return result;
+        }
+
+
+        private bool TestPassedOk(TestResultInfo testResult, string name)
+        {
+            var result = testResult.Name == name && testResult.Result.ToString() == "OK";
+            return result;
+        }
+
+        private bool TestPassedIgnore(TestResultInfo testResult, string name, string message)
+        {
+            var result = testResult.Name == name && testResult.Result.ToString() == "IGNORED" && message == testResult.Message;
+            return result;
         }
     }
 }

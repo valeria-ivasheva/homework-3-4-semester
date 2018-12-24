@@ -41,6 +41,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TestAfter.cs" />
+    <Compile Include="TestAfterClass.cs" />
+    <Compile Include="TestBefore.cs" />
     <Compile Include="TestWithBeforeClass.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

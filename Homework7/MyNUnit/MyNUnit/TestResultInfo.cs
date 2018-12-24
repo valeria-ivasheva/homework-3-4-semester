@@ -6,11 +6,29 @@ using System.Threading.Tasks;
 
 namespace MyNUnit
 {
-    public class TestResultInfo
+    /// <summary>
+    /// Результаты теста
+    /// </summary>
+    public class TestResultInfo : IComparable<TestResultInfo>
     {
+        /// <summary>
+        /// Имя теста
+        /// </summary>
         public string Name { get; }
+
+        /// <summary>
+        /// Время за которое проходит тестов
+        /// </summary>
         public long RunTime { get; }
+
+        /// <summary>
+        /// Результаты теста
+        /// </summary>
         public ResultType Result { get; }
+
+        /// <summary>
+        /// Сообщение об ошибке
+        /// </summary>
         public string Message { get; }
 
         public TestResultInfo(string name, long runTime)
@@ -27,11 +45,17 @@ namespace MyNUnit
             Message = message;
         }
 
+        /// <summary>
+        /// Типы результата
+        /// </summary>
         public enum ResultType
         {
             OK, FAILED, IGNORED
         }
 
+        /// <summary>
+        /// Распечатать результаты
+        /// </summary>
         public void Write()
         {
             if (Result == ResultType.OK)
@@ -42,6 +66,16 @@ namespace MyNUnit
             {
                 Console.WriteLine($"{Name} {Result} {Message}");
             }
+        }
+
+        /// <summary>
+        /// Сравнение TestResultInfo
+        /// </summary>
+        /// <param name="other"> Объект, с которым происходит сравнение</param>
+        /// <returns></returns>
+        public int CompareTo(TestResultInfo other)
+        {
+            return this.Name.CompareTo(other.Name);
         }
     }
 }

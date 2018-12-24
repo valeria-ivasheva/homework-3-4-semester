@@ -9,7 +9,7 @@ namespace MyNUnit.Attributes
     /// <summary>
     /// Определяет атрибут, указывающий на запуск метода после всех тестов
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Method)]
     public class AfterClassAttribute : Attribute
     {
     }
