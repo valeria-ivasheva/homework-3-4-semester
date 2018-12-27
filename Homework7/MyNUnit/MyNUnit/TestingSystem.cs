@@ -91,14 +91,13 @@ namespace MyNUnit
             {
                 return;
             }
-            var instanceOfType = Activator.CreateInstance(type);
-            var passedMethodsBeforeClass = RunMethodsWithAnnotation(methodsBeforeClass, methodsForTesting, "BeforeClass", instanceOfType);
+            var passedMethodsBeforeClass = RunMethodsWithAnnotation(methodsBeforeClass, methodsForTesting, "BeforeClass", null);
             if (!passedMethodsBeforeClass)
             {
                 return;
             }
-            Parallel.For(0, methodsForTesting.Count, i => RunTest(methodsForTesting[i], instanceOfType));
-            var passedMethodsAfterTest = RunMethodsWithAnnotation(methodsAfterClass, methodsForTesting, "AfterClass", instanceOfType);
+            Parallel.ForEach(methodsForTesting, RunTest);
+            var passedMethodsAfterTest = RunMethodsWithAnnotation(methodsAfterClass, methodsForTesting, "AfterClass", null);
         }
 
         private static bool RunMethodsWithAnnotation(List<MethodInfo> methodsWithAnnotation, List<MethodInfo> methodsTest, string annotation, object instanceOfType)
@@ -108,8 +107,9 @@ namespace MyNUnit
             return passedMethods;
         }
 
-        private static void RunTest(MethodInfo method, object instanceOfType)
+        private static void RunTest(MethodInfo method)
         {
+            var instanceOfType = Activator.CreateInstance(method.DeclaringType);
             var attrTemp = Attribute.GetCustomAttribute(method, typeof(TestAttribute));
             var attr = (TestAttribute)Attribute.GetCustomAttributes(method).Where(t => Equals(t.GetType(), typeof(TestAttribute))).First(); //Здесь нет элементов из-за приведения типа
             var ignore = attr.Ignore;
@@ -220,6 +220,10 @@ namespace MyNUnit
 
         private static InfoMethod RunMethod(MethodInfo methodInfo, object instanceOfType)
         {
+            if (instanceOfType == null)
+            {
+                instanceOfType = Activator.CreateInstance(methodInfo.DeclaringType);
+            }
             var result = new InfoMethod(methodInfo.Name);
             try
             {

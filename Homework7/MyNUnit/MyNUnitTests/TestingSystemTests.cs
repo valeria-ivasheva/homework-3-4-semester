@@ -57,14 +57,13 @@ namespace Tests
             TestingSystem.Run(path);
             var result = TestingSystem.GetResultTestInfos();
             result.Sort();
-            Assert.AreEqual(8, result.Count);
+            Assert.AreEqual(7, result.Count);
             Assert.IsTrue(TestFailed(result[0], "TestWithMethods.TestAfter Test"));
             Assert.IsTrue(TestFailed(result[1], "TestWithMethods.TestAfter Test1"));
             Assert.IsTrue(TestFailed(result[2], "TestWithMethods.TestAfterClass Test"));
             Assert.IsTrue(TestFailed(result[3], "TestWithMethods.TestAfterClass Test1"));
             Assert.IsTrue(TestPassedOk(result[4], "TestWithMethods.TestBefore Test"));
-            Assert.IsTrue(TestPassedOk(result[7], "TestWithMethods.TestWithBeforeClass Test1"));
-            Assert.IsTrue(TestPassedOk(result[6], "TestWithMethods.TestWithBeforeClass Test"));
+            Assert.IsTrue(TestPassedOk(result[6], "TestWithMethods.TestWithBeforeClass Test1"));
             Assert.IsTrue(TestPassedOk(result[5], "TestWithMethods.TestBefore Test1"));
         }
 

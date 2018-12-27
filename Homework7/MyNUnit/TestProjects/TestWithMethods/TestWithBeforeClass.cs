@@ -18,12 +18,6 @@ namespace TestWithMethods
         }
 
         [Test]
-        public int Test()
-        {
-            return 1 / count;
-        }
-
-        [Test]
         public void Test1()
         {
             return;
