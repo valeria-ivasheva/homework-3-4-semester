@@ -24,9 +24,9 @@ namespace MyNUnit
         /// <param name="path"> Путь для тестов</param>
         public static void Run(string path)
         {
-            var pathToAssebmly = GetFilesList(path, "*.dll");
+            var pathToAssembly = GetFilesList(path, "*.dll");
             var types = new List<Type>();
-            foreach(var pathTemp in pathToAssebmly)
+            foreach (var pathTemp in pathToAssembly)
             {
                 var assembly = Assembly.LoadFrom(pathTemp);
                 var typesAssembly = assembly.ExportedTypes.ToList();
@@ -111,7 +111,7 @@ namespace MyNUnit
         private static void RunTest(MethodInfo method, object instanceOfType)
         {
             var attrTemp = Attribute.GetCustomAttribute(method, typeof(TestAttribute));
-            var attr = (TestAttribute)Attribute.GetCustomAttributes(method).Where(t =>Equals(t.GetType(), typeof(TestAttribute))).First(); //Здесь нет элементов из-за приведения типа
+            var attr = (TestAttribute)Attribute.GetCustomAttributes(method).Where(t => Equals(t.GetType(), typeof(TestAttribute))).First(); //Здесь нет элементов из-за приведения типа
             var ignore = attr.Ignore;
             var expectedException = attr.Expected;
             var methodsBeforeTest = MethodsWithAttributes<BeforeTestAttribute>(method.DeclaringType);
@@ -131,7 +131,7 @@ namespace MyNUnit
             var result = RunMethod(method, instanceOfType);
             watch.Stop();
             var elapsedTime = watch.ElapsedMilliseconds;
-            var condTrueResultException = expectedException != null && (result.Exception) == expectedException;            
+            var condTrueResultException = expectedException != null && (result.Exception) == expectedException;
             if (!condTrueResultException && expectedException != null)
             {
                 var resultTest = new TestResultInfo(method.DeclaringType + " " + method.Name, false, $"Expected exception {expectedException}");
@@ -152,7 +152,7 @@ namespace MyNUnit
             if (condTrueResultException || result.Result)
             {
                 var resultTest = new TestResultInfo(method.DeclaringType + " " + method.Name, elapsedTime);
-                testsResult.Add(resultTest); 
+                testsResult.Add(resultTest);
                 return;
             }
         }
@@ -167,7 +167,7 @@ namespace MyNUnit
             string message = $"Не пройдены методы {annotation}";
             for (int i = 0; i < methodsTest.Count; i++)
             {
-                testsResult.Add(new TestResultInfo(methodsTest[i].DeclaringType + " " + methodsTest[i].Name, false, message));             
+                testsResult.Add(new TestResultInfo(methodsTest[i].DeclaringType + " " + methodsTest[i].Name, false, message));
             }
             return false;
         }
@@ -185,14 +185,14 @@ namespace MyNUnit
             return null;
         }
 
-        private static List<MethodInfo> MethodsWithAttributes<T>(Type type) where T:Attribute
+        private static List<MethodInfo> MethodsWithAttributes<T>(Type type) where T : Attribute
         {
             var result = new List<MethodInfo>();
-            foreach(var method in type.GetMethods())
+            foreach (var method in type.GetMethods())
             {
-                foreach(var temp in method.CustomAttributes)
+                foreach (var temp in method.CustomAttributes)
                 {
-                    if  (Equals(temp.AttributeType.ToString(), typeof(T).ToString()))
+                    if (Equals(temp.AttributeType.ToString(), typeof(T).ToString()))
                     {
                         result.Add(method);
                     }
@@ -211,13 +211,12 @@ namespace MyNUnit
                 tasks[i] = Task.Factory.StartNew(() => RunMethod(methods[j], instanceOfType));
             }
             Task.WaitAll(tasks);
-            foreach(var task in tasks)
+            foreach (var task in tasks)
             {
                 result.Add(task.Result);
             }
             return result;
         }
-        
 
         private static InfoMethod RunMethod(MethodInfo methodInfo, object instanceOfType)
         {
@@ -226,7 +225,7 @@ namespace MyNUnit
             {
                 var resultMethod = methodInfo.Invoke(instanceOfType, null);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 var typeException = e.InnerException.GetType();
                 result = new InfoMethod(methodInfo.Name, typeException);

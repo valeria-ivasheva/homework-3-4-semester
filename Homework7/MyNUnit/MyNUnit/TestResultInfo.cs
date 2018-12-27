@@ -17,7 +17,7 @@ namespace MyNUnit
         public string Name { get; }
 
         /// <summary>
-        /// Время за которое проходит тестов
+        /// Время за которое проходит тест
         /// </summary>
         public long RunTime { get; }
 
