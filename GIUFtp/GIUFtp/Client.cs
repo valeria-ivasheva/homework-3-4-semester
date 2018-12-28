@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace GIUFtp
 {
+    /// <summary>
+    /// Класс FTP-клиента
+    /// </summary>
     public class Client
     {
         private TcpClient client;
@@ -20,12 +23,15 @@ namespace GIUFtp
             this.server = server;
         }
 
+        /// <summary>
+        /// Закрыть клиента
+        /// </summary>
         public void Close() => client.Close();
 
         /// <summary>
         /// Проверка подключился ли клиент к серверу
         /// </summary>
-        /// <returns> True - все ок, false - что-то пошла не так</returns>
+        /// <returns> True - все ок, false - что-то пошло не так</returns>
         public bool Connect()
         {
             try
@@ -95,7 +101,7 @@ namespace GIUFtp
         }
 
         /// <summary>
-        /// Листинг файлов и деркторий, находящихся в path
+        /// Листинг файлов и директорий, находящихся в path
         /// </summary>
         /// <param name="path"> Путь к директории, информацию о которой мы хотим найти</param>
         /// <returns> Количество файлов и папок, список из названий. Если такой папки нет, возвращает -1</returns>

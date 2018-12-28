@@ -67,10 +67,7 @@ namespace GIUFtp
         /// </summary>
         public string PathSave
         {
-            get
-            {
-                return pathSave;
-            }
+            get => pathSave;
             set
             {
                 pathSave = value;
@@ -83,10 +80,7 @@ namespace GIUFtp
         /// </summary>
         public string CurrentPath
         {
-            get
-            {
-                return currentPath;
-            }
+            get => currentPath;
             set
             {
                 currentPath = value;
@@ -114,7 +108,7 @@ namespace GIUFtp
             this.window = window;
             server = "localhost";
             port = 22234;
-            CurrentPath = @"D:\Zona Downloads";
+            CurrentPath = @"";
             rootFolder = CurrentPath;
             connected = false;
             List = new ObservableCollection<MyFile>();
@@ -132,7 +126,7 @@ namespace GIUFtp
         /// <summary>
         /// Команда подключения к серверу
         /// </summary>
-        public ICommand ConnectCommand => new Command(Connect);
+        public ICommand ConnectCommand => new CommandAsync(Connect);
 
         /// <summary>
         /// Команда возвращения назад по папке
@@ -190,10 +184,13 @@ namespace GIUFtp
             return connected;
         }
 
-        private void Connect()
+        private async Task Connect()
         {
-            client = new Client(Server, port);
-            connected = client.Connect();
+            await Task.Run(() =>
+           {
+               client = new Client(Server, port);
+               connected = client.Connect();
+           });
             if (connected)
             {
                 if (window != null)

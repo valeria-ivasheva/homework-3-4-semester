@@ -28,8 +28,7 @@ namespace GIUFtp
         /// </summary>
         public string ImagePath
         {
-            get
-            { return imagePath; }
+            get => imagePath;
             set
             {
                 imagePath = value;
@@ -54,8 +53,9 @@ namespace GIUFtp
                 Name = strTemp[0];
                 IsDir = Convert.ToBoolean(strTemp[1]);
             }
-            catch(FormatException e)
+            catch (FormatException e)
             {
+                throw e;
             }
         }
 

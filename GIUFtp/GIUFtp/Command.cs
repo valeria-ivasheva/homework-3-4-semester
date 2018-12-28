@@ -40,17 +40,14 @@ namespace GIUFtp
        /// <summary>
        /// Можно ли выполнить команду
        /// </summary>
-        public bool CanExecute(object parameter)
+        public bool CanExecute(object parameter) 
         {
-            return canExecute == null || canExecute();
+            return canExecute?.Invoke() ?? true;
         }
 
         /// <summary>
         /// Выполнить команду
         /// </summary>
-        public void Execute(object parameter)
-        {
-            command();
-        }
+        public void Execute(object parameter) => command();
     }
 }

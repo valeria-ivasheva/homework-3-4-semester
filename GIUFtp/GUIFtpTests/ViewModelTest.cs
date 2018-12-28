@@ -28,19 +28,19 @@ namespace GUIFtpTests
             Directory.CreateDirectory(pathToDir + @"\New");
             viewModel.PathSave = pathToDir + @"\New"; 
             viewModel.CurrentPath = pathToDir;
-            viewModel.ConnectCommand.Execute(this);
         }
 
         [TestMethod]
-        public void ConnectTest()
+        public async System.Threading.Tasks.Task ConnectTest()
         {
-            viewModel.ConnectCommand.Execute(this);
+            await (viewModel.ConnectCommand as CommandAsync).ExecuteAsync(this);
             Assert.IsTrue(viewModel.IsConnected());
         }
 
         [TestMethod]
         public async System.Threading.Tasks.Task OpenTest()
         {
+            await (viewModel.ConnectCommand as CommandAsync).ExecuteAsync(this);
             await (viewModel.OpenCommand as CommandAsync).ExecuteAsync(this);
             int countDir = 0;
             int countFiles = 0;
@@ -72,6 +72,7 @@ namespace GUIFtpTests
         [TestMethod]
         public async System.Threading.Tasks.Task TryOpenTestAsync()
         {
+            await (viewModel.ConnectCommand as CommandAsync).ExecuteAsync(this);
             await (viewModel.OpenCommand as CommandAsync).ExecuteAsync(this);
             await viewModel.TryOpenFolder(viewModel.List[0]);
             var folder = new DirectoryInfo(pathToDir).GetDirectories().OrderBy(b => b.Name).First();
@@ -81,6 +82,7 @@ namespace GUIFtpTests
         [TestMethod]
         public async System.Threading.Tasks.Task BackTest()
         {
+            await (viewModel.ConnectCommand as CommandAsync).ExecuteAsync(this);
             await (viewModel.OpenCommand as CommandAsync).ExecuteAsync(this);
             await viewModel.TryOpenFolder(viewModel.List[0]);
             viewModel.BackCommand.Execute(this);
@@ -88,8 +90,9 @@ namespace GUIFtpTests
         }
 
         [TestMethod]
-        public void DisconnectTest()
+        public async System.Threading.Tasks.Task DisconnectTest()
         {
+            await (viewModel.ConnectCommand as CommandAsync).ExecuteAsync(this);
             viewModel.DisconnectCommand.Execute(this);
             Assert.IsFalse(viewModel.IsConnected());
         }
@@ -97,6 +100,7 @@ namespace GUIFtpTests
         [TestMethod]
         public async System.Threading.Tasks.Task DownloadTest()
         {
+            await (viewModel.ConnectCommand as CommandAsync).ExecuteAsync(this);
             var lines = new string[3] { "Test", "22222, 322, 23", "Olololo" };
             var pathFile = pathToDir + @"\MyFile.txt";
             using (var file = new StreamWriter(pathFile))
