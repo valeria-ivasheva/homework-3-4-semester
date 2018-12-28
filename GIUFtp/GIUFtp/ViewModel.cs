@@ -187,10 +187,10 @@ namespace GIUFtp
         private async Task Connect()
         {
             await Task.Run(() =>
-           {
-               client = new Client(Server, port);
-               connected = client.Connect();
-           });
+            {
+                client = new Client(Server, port);
+                connected = client.Connect();
+            });
             if (connected)
             {
                 if (window != null)

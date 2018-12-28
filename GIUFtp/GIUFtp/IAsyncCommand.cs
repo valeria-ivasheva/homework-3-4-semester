@@ -8,7 +8,7 @@ using System.Windows.Input;
 namespace GIUFtp
 {
     /// <summary>
-    /// 
+    /// Интерфейс ассинхронных команд
     /// </summary>
     public interface IAsyncCommand : ICommand
     {

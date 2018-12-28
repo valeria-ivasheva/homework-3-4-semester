@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace GIUFtp
 {
     /// <summary>
-    /// 
+    /// Класс информации файла
     /// </summary>
     public class MyFile : System.ComponentModel.INotifyPropertyChanged
     {
