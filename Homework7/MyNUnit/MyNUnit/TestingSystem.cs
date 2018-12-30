@@ -111,7 +111,7 @@ namespace MyNUnit
         {
             var instanceOfType = Activator.CreateInstance(method.DeclaringType);
             var attrTemp = Attribute.GetCustomAttribute(method, typeof(TestAttribute));
-            var attr = (TestAttribute)Attribute.GetCustomAttributes(method).Where(t => Equals(t.GetType(), typeof(TestAttribute))).First(); //Здесь нет элементов из-за приведения типа
+            var attr = (TestAttribute)Attribute.GetCustomAttributes(method).Where(t => Equals(t.GetType(), typeof(TestAttribute))).First(); 
             var ignore = attr.Ignore;
             var expectedException = attr.Expected;
             var methodsBeforeTest = MethodsWithAttributes<BeforeTestAttribute>(method.DeclaringType);
@@ -211,19 +211,16 @@ namespace MyNUnit
                 tasks[i] = Task.Factory.StartNew(() => RunMethod(methods[j], instanceOfType));
             }
             Task.WaitAll(tasks);
-            foreach (var task in tasks)
-            {
-                result.Add(task.Result);
-            }
+            Parallel.ForEach(tasks, (task) => { result.Add(task.Result); });
             return result;
         }
 
         private static InfoMethod RunMethod(MethodInfo methodInfo, object instanceOfType)
         {
-            if (instanceOfType == null)
-            {
-                instanceOfType = Activator.CreateInstance(methodInfo.DeclaringType);
-            }
+            if (instanceOfType == null)                                              /// Статическим методам не нужен экземпляр, 
+            {                                                                        /// более того, создание объекта может быть                 
+                instanceOfType = Activator.CreateInstance(methodInfo.DeclaringType); /// семантически неправильно   
+            }                                                                        /// Это нужно убрать по-хорошему     
             var result = new InfoMethod(methodInfo.Name);
             try
             {
