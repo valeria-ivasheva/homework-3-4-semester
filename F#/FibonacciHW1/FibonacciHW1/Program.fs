@@ -1,4 +1,4 @@
-﻿let Fibonacci n = 
+﻿let fibonacci n = 
     if n <= 0 then 
         -1
     else 
@@ -10,6 +10,6 @@
 
 [<EntryPoint>]
 let main argv =
-    let f = Fibonacci 22
+    let f = fibonacci 22
     printf "Фибоначчи номер 22 %d" f
     0
