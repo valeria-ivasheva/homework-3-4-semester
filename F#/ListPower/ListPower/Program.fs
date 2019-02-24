@@ -1,16 +1,18 @@
 ﻿module Func
 
+exception InputException of string
+
 let power deg x = 
-    if (deg < 0) then None
+    if (deg < 0) then raise (InputException("Степень должна быть натуральной"))
     else
-        let rec pow a d acc = 
-            if d = 0 then acc
+        let rec pow a deg acc = 
+            if deg = 0 then acc
             else
-                if d % 2 = 0 then
-                   pow (a* a) (d / 2) acc
+                if deg % 2 = 0 then
+                   pow (a * a) (deg / 2) acc
                 else
-                    pow a (d - 1) (acc * a)
-        Some (pow x deg 1)
+                    pow a (deg - 1) (acc * a)
+        pow x deg 1
         
 
 let listPower m n = 
@@ -19,7 +21,7 @@ let listPower m n =
         let rec lstPow count acc = 
             if count = -1 then acc
             else 
-                let x = (power (m + count) 2).Value
+                let x = power (m + count) 2
                 lstPow (count - 1) (x :: acc)
         Some(lstPow n [])
 
