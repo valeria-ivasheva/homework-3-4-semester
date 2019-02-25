@@ -23,6 +23,10 @@ type PalindromeTests () =
         Palindrome.isPalindrome "я иду с мечем судия" |> should equal true
 
     [<TestMethod>]
+    member this.``Is palindrome "я идУ с мЕЧем судиЯ" should equal true`` () =
+        Palindrome.isPalindrome "я идУ с мЕЧем судиЯ" |> should equal true
+
+    [<TestMethod>]
     member this.``Empty string should equal true`` () =
         Palindrome.isPalindrome "" |> should equal true
 
