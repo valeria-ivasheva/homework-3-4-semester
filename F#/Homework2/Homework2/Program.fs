@@ -2,7 +2,7 @@
 
 [<EntryPoint>]
 let main argv =
-    let str = "a n N a"
-    let res = Palindrome.isPalindrome str
+    let list = [1; 2; 3]
+    let res = MergeSort.mergesort list
     printf "%A" (res)
     0 
