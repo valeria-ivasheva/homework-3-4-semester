@@ -1,5 +1,7 @@
-﻿module IsPrime
+﻿/// Задача 3.4 (бесконечная последовательность простых чисел)
+module IsPrime
 
+/// Проверка на простоту числа x
 let isPrime x = 
     if (x < 2) then false
     else
@@ -11,6 +13,7 @@ let isPrime x =
                 else isPrimeRec (i + 1)
         isPrimeRec 2
 
+/// Получить бесконечную последовательность простых чисел
 let primeSeq = 
     let rec prime n = 
         seq {
