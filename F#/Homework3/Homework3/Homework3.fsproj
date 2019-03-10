@@ -6,6 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Arithmetic.fs" />
+    <Compile Include="MapForTree.fs" />
     <Compile Include="IsPrime.fs" />
     <Compile Include="EvenNumber.fs" />
     <Compile Include="Program.fs" />
