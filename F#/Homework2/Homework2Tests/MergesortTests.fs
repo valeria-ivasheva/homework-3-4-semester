@@ -25,8 +25,3 @@ type MergesortTests () =
     [<TestMethod>]
     member this.``[-12; 9; 22; 23; 23] [-3; 0; 9; 26] merge should equal [-12; -3; 0; 9; 9; 22; 23; 23; 26]`` () =
         MergeSort.merge [-12; 9; 22; 23; 23] [-3; 0; 9; 26] |> should equal [-12; -3; 0; 9; 9; 22; 23; 23; 26]
-
-    [<TestMethod>]
-    member this.``[-12; -3; 0; 9; 9; 22; 23; 23; 26] split should equal ([-12; -3; 0; 9; 9], [22; 23; 23; 26])`` () =
-        MergeSort.split [-12; -3; 0; 9; 9; 22; 23; 23; 26] |> should equal ([-12; -3; 0; 9; 9], [22; 23; 23; 26])
-

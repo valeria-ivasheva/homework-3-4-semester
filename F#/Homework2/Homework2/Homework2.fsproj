@@ -12,4 +12,8 @@
     <Compile Include="Program.fs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="TestRunner" Version="1.8.0" />
+  </ItemGroup>
+
 </Project>

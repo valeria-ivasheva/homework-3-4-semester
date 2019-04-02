@@ -10,3 +10,6 @@ before_build:
 build:
   project: F#/Homework2/Homework2.sln
 
+test_script:
+  - dotnet test F#/Homework2/Homework2.sln 
+
