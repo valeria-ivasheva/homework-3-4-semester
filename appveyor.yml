@@ -2,7 +2,7 @@ image: Visual Studio 2017
 
 branches:
  only:
-  - hw2
+  - home5
 
 before_build:
   - nuget restore F#/Homework5/Homework5.sln
