@@ -5,8 +5,8 @@ branches:
   - hw2
 
 before_build:
-  - nuget restore F#/Homework2/Homework2.sln
+  - nuget restore F#/Homework5/Homework5.sln
 
 build:
-  project: F#/Homework2/Homework2.sln
+  project: F#/Homework5/Homework5.sln
 
