@@ -1,5 +1,7 @@
-﻿module Brackets
+﻿/// Задача 5.1 (проверка корректности скобок)
+module Brackets
 
+/// Возвращает нужную открывающую скобку
 let returnOpenBrackets brk = 
     match brk with 
     |')' -> Some('(')
@@ -7,6 +9,7 @@ let returnOpenBrackets brk =
     |']' -> Some('[')
     | _  -> None
 
+///  Проверка на корректность последовательности скобок
 let isCorrectBrackets str = 
     let listStr = Seq.toList str
     let rec correct listStr (stack) = 
