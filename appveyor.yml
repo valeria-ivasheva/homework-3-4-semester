@@ -2,11 +2,14 @@ image: Visual Studio 2017
 
 branches:
  only:
-  - Homework2
+  - hw2
 
 before_build:
-  - nuget restore MyThreadPool/MyThreadPool.sln
+  - nuget restore F#/Homework2/Homework2.sln
 
 build:
-  project: MyThreadPool/MyThreadPool.sln
+  project: F#/Homework2/Homework2.sln
+
+test_script:
+  - dotnet test F#/Homework2/Homework2.sln 
 
