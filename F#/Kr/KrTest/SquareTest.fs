@@ -13,10 +13,12 @@ type TestClass () =
         square 0 |> should equal [""]
     
     [<TestMethod>]
-    member this.``square 0 should equal ["*"]`` () =
+    member this.``square 1 should equal ["*"]`` () =
         square 1 |> should equal ["*"]
-
-    
+       
+    [<TestMethod>]
+    member this.``square 3 should equal ["***"; "* *"; "***"]`` () =
+        square 3 |> should equal ["***"; "* *"; "***"]
     
 
             
