@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Telephone.fs" />
     <Compile Include="Brackets.fs" />
     <Compile Include="Task2.fs" />
     <Compile Include="Program.fs" />
