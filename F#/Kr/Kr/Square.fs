@@ -3,6 +3,7 @@
 let square n = 
     if (n < 0) then ignore()
     if (n = 0) then [""]
+    elif (n = 1) then ["*"]
     else
         let rec granStr count (strGran, strIn) = 
             if (count > 1) then 
