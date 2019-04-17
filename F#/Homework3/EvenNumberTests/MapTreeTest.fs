@@ -12,7 +12,7 @@ type TestClass () =
 
     let tempTree2 = (Tree ("a", Tree("b", Tip, Tip), Tree("c", Tip, Tip)))
 
-    let temp a = 
+    let repeatThreeTimes a = 
         let rec tempStr str size = 
             match size with
             | _ when (size < 0) -> ""
@@ -30,4 +30,4 @@ type TestClass () =
 
     [<TestMethod>]
     member this.``MapTree tempTree2 with fun temp`` () =
-        mapTree tempTree2 temp |> should equal (Tree ("aaa", Tree("bbb", Tip, Tip), Tree("ccc", Tip, Tip)))
+        mapTree tempTree2 repeatThreeTimes |> should equal (Tree ("aaa", Tree("bbb", Tip, Tip), Tree("ccc", Tip, Tip)))

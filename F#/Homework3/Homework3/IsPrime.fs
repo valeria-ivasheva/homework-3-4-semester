@@ -22,3 +22,6 @@ let primeSeq =
         }
     prime 2
 
+/// Получить бесконечную последовательность простых чисел через initInfinite
+let seqPrime = 
+    Seq.initInfinite(fun x -> x) |> Seq.filter isPrime
