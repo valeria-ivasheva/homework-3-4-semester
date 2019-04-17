@@ -12,5 +12,3 @@ build:
 
 test_script:
   - dotnet test F#/Homework3/Homework3.sln 
-  
-
