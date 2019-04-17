@@ -7,7 +7,7 @@ let isPrime x =
     else
         let count = int (float x ** (0.5))
         let rec isPrimeRec i = 
-            if (count < i ) then true
+            if (count < i) then true
             else 
                 if (x % i = 0) then false
                 else isPrimeRec (i + 1)
