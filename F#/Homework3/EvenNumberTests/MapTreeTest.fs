@@ -1,5 +1,4 @@
-﻿//module MapTreeTest
-namespace MapTreeTest
+﻿namespace MapTreeTest
 
 open System
 open Microsoft.VisualStudio.TestTools.UnitTesting
