@@ -36,7 +36,6 @@ type TestClass () =
     [<TestMethod>]
     member this.RaceTest () =
         let worker = new BackgroundWorker()
-        let numIterations = 100
         worker.DoWork.Add(fun args -> 
             let lazyTemp = LazyFactory.CreateMultiThreadedLazy(fun () -> 21)
             args.Result <- box (lazyTemp.Get()))
@@ -54,3 +53,20 @@ type TestClass () =
         count |> should equal 1
         lazyTemp.Get() |> should equal 16
         count |> should equal 1
+
+    [<TestMethod>]
+    member this.MultiLockRaceTest () =
+        let worker = new BackgroundWorker()
+        worker.DoWork.Add(fun args -> 
+            let lazyTemp = LazyFactory.CreateMultiThreadLockLazy(fun () -> 21)
+            args.Result <- box (lazyTemp.Get()))
+        worker.RunWorkerCompleted.Add(fun args ->
+            args.Result |> should equal 12)
+        worker.RunWorkerAsync()
+
+    [<TestMethod>]
+    member this.SimpleMultiLockTest () =
+        let mutable x = 4
+        let lazyTemp = LazyFactory.CreateMultiThreadLockLazy(fun () -> x <- x * x)
+        lazyTemp.Get() 
+        x |> should equal 16
