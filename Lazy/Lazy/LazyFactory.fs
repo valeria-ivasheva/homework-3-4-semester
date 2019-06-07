@@ -6,56 +6,50 @@ open System
 
 /// Интерфейс, представляющий ленивое вычисление
 /// Первый вызов Get() вызывает вычисление и возвращает результат
-[<AbstractClassAttribute>]
-type ILazy<'a>() =
+type ILazy<'a> =
     abstract member Get: unit -> 'a
 
 /// Класс Lazy, работающий в однопоточном режиме
 type Lazy<'a> (suplier : unit -> 'a) = 
-    inherit ILazy<'a>()
-    let func = suplier
     let mutable result = None
-    let mutable isResultCalculated = false
-    override this.Get() = 
-        if (not isResultCalculated) 
-        then 
-            result <- Some(func())
-            isResultCalculated <- true
-        result.Value
+    interface ILazy<'a> with
+        member this.Get() = 
+            if (result.IsNone) 
+            then 
+                result <- Some(suplier())
+                result.Value
+            else 
+                result.Value
 
 /// Класс Lazy, работающий в многопоточном режиме
 type MultiThreadLazy<'a> (suplier: unit -> 'a) = 
-    inherit ILazy<'a>()
     let func = suplier
     let mutable result = None
+    [<VolatileField>]
     let mutable isResultCalculated = false
     let lockobj  = new Object()
-    override this.Get() = 
-        if (not isResultCalculated)
-        then
-            Monitor.Enter lockobj
-            try
+    interface ILazy<'a> with
+         member this.Get() = 
+            if (not isResultCalculated)
+            then
+                lock lockobj (fun() -> 
                 if (not isResultCalculated)
-                then
-                    result <- Some(func())
-                    isResultCalculated <- true               
-            finally
-            Monitor.Exit lockobj
-        result.Value
-
+                    then
+                        result <- Some(func())
+                        isResultCalculated <- true  
+                )
+            result.Value
+        
 /// Класс Lazy, работающий в многопоточном lock-free режиме
 type MultiThreadLockLazy<'a>(suplier: unit -> 'a) = 
-    inherit ILazy<'a>()
     let func = suplier
     let mutable result = None
-    override this.Get() = 
-        let rec loopLockFree () = 
+    interface ILazy<'a> with
+          member this.Get() = 
             let current = result
             let newResult = Some(func())
-            if not <| obj.ReferenceEquals(current, Interlocked.CompareExchange(&result, newResult, current))
-            then loopLockFree ()
-            else result.Value
-        loopLockFree ()
+            Interlocked.CompareExchange(&result, newResult, current) |> ignore
+            result.Value
              
 /// Класс, создающий объект Lazy
 type LazyFactory = 
