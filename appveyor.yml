@@ -12,3 +12,4 @@ build:
 
 test_script:
   - dotnet test F#/Homework8/Homework8.sln 
+
