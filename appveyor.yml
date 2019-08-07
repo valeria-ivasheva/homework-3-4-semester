@@ -2,13 +2,14 @@ image: Visual Studio 2017
 
 branches:
  only:
-  - lazy
+
+  - hw4
 
 before_build:
-  - nuget restore Lazy/Lazy.sln
+  - nuget restore F#/Homework4/Homework4/Homework4.sln
 
 build:
-  project: Lazy/Lazy.sln
+  project: F#/Homework4/Homework4/Homework4.sln
 
 test_script:
-  - dotnet test Lazy/Lazy.sln
+  - dotnet test F#/Homework4/Homework4/Homework4.sln
