@@ -1,0 +1,16 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\begin{document}
+
+\textbf{4.1}\\
+(($\lambda$a.($\lambda$b.b b)($\lambda$b.b b)) b)($\lambda$c.(c b))($\lambda$a.a) = (($\lambda$b.b b)($\lambda$b.b b))($\lambda$a.a) b) = ($\lambda$b.b b)($\lambda$b.b b) b
+
+
+\textbf{4.2}\\
+S K K = ($ \lambda $x y z.x z (y z)) ($ \lambda $x y.x) ($ \lambda $x y.x) = 
+   = ($ \lambda $x y z.x z (y z)) K K = ($ \lambda $y z. K z (y z)) K = ($ \lambda $z. K z K z) = 
+   = ($ \lambda $z. ($ \lambda $x y.x) z (K z)) = ($ \lambda $z.z) = I\par
+   
+  
+
+\end{document}

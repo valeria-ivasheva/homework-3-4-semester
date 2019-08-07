@@ -2,13 +2,14 @@ image: Visual Studio 2017
 
 branches:
  only:
-  - home5
+
+  - hw4
 
 before_build:
-  - nuget restore F#/Homework5/Homework5.sln
+  - nuget restore F#/Homework4/Homework4/Homework4.sln
 
 build:
-  project: F#/Homework5/Homework5.sln
+  project: F#/Homework4/Homework4/Homework4.sln
 
 test_script:
-  - dotnet test F#/Homework5/Homework5.sln 
+  - dotnet test F#/Homework4/Homework4/Homework4.sln
