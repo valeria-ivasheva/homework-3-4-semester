@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2048
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleFtpServer", "SimpleFtpServer\SimpleFtpServer.csproj", "{ECC2A8E9-6D53-4E77-A131-7BFD7524E1D3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleServer", "SimpleFtpServer\SimpleServer.csproj", "{F1DB5F9E-B1D9-479F-BFFE-6A2F54734CED}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ECC2A8E9-6D53-4E77-A131-7BFD7524E1D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECC2A8E9-6D53-4E77-A131-7BFD7524E1D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECC2A8E9-6D53-4E77-A131-7BFD7524E1D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECC2A8E9-6D53-4E77-A131-7BFD7524E1D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1DB5F9E-B1D9-479F-BFFE-6A2F54734CED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1DB5F9E-B1D9-479F-BFFE-6A2F54734CED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1DB5F9E-B1D9-479F-BFFE-6A2F54734CED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1DB5F9E-B1D9-479F-BFFE-6A2F54734CED}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4996B2BB-68FF-4499-94C0-2D6FA26A222A}
+	EndGlobalSection
+EndGlobal
